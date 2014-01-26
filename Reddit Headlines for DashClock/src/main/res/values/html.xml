@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="bounding_html" formatted="false">
+        <![CDATA[
+<html>
+<head>
+<style type="text/css">
+.bounding-box {
+  background-image: url("%s");
+  background-size: contain;
+  position: absolute;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100%%;
+  width: 100%%;
+}
+</style>
+</head>
+<body>
+<div class="bounding-box"></div>
+</body>
+        ]]>
+    </string>
+</resources>

@@ -1,0 +1,46 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.8.+'
+    }
+}
+
+apply plugin: 'android-library'
+apply plugin: 'maven'
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "19.0.1"
+
+    defaultConfig {
+        minSdkVersion 4
+        targetSdkVersion 4
+    }
+
+    release {
+        runProguard false
+        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+    }
+}
+
+dependencies {
+    compile 'com.android.support:support-v4:+'
+}
+
+artifacts {
+    archives file('build/libs/ViewPagerIndicator.aar')
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "http://tbx2-build.int.eprize.net:8083/artifactory/android-external-library-release/")
+            pom.groupId = 'com.jakewharton.viewpagerindicator'
+            pom.artifactId = 'library'
+            pom.version = '2.4.1'
+        }
+    }
+}

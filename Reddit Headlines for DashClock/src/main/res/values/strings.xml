@@ -1,0 +1,21 @@
+<resources>
+    <string name="my_app_name">Reddit Headlines</string>
+    <string name="extension_title_1">Reddit Headlines</string>
+    <string name="extension_description_1">Display posts from reddit</string>
+    <string name="pref_subreddit_summary">The subreddit to display posts from</string>
+    <string name="pref_subreddit_title">Subreddit</string>
+    <string name="pref_sort_title">Sort Order</string>
+    <string name="login_to_reddit">Login to Reddit</string>
+    <string name="please_wait_while_we_log_you_in">Please wait while we log you in to reddit...</string>
+    <string name="logging_in">Logging In</string>
+    <string name="title_settings">Reddit Headlines Preferences</string>
+    <string name="pref_account">redditUser</string>
+    <string name="open_comments">Open comments</string>
+    <string name="open_link">Open link</string>
+    <string name="imgur_api_url">https://api.imgur.com</string>
+    <string name="reddit_api_url">http://www.reddit.com</string>
+    <string name="uparrow" formatted="false">▲</string>
+    <string name="downarrow" formatted="false">▼</string>
+    <string name="preview_subtitle_template" formatted="false">submitted %s by %s</string>
+    <string name="test_credentials">test_credentials</string>
+</resources>

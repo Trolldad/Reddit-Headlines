@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="sort_entries">
+        <item>hot</item>
+        <item>new</item>
+        <item>rising</item>
+        <item>controversial</item>
+        <item>top</item>
+        <item>gilded</item>
+        <item>random</item>
+    </string-array>
+    <string-array name="action_entries">
+        <item>@string/open_link</item>
+        <item>@string/open_comments</item>
+    </string-array>
+</resources>

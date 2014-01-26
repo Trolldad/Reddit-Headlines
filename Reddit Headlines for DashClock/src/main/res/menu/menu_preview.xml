@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_refresh"
+        android:title="Refresh"
+        android:showAsAction="never"
+        android:icon="@drawable/ic_action_navigation_refresh"/>
+    <item
+        android:id="@+id/menu_fullscreen"
+        android:title="Toggle Fullscreen"
+        android:showAsAction="always"
+        android:icon="@drawable/ic_action_av_full_screen"/>
+    <item
+        android:id="@+id/menu_preferences"
+        android:title="Extension Preferences"
+        android:showAsAction="never"
+        android:icon="@drawable/ic_action_settings"/>
+    <item
+        android:id="@+id/menu_feedback"
+        android:title="Developer Feedback"
+        android:showAsAction="never" />
+    <item
+        android:id="@+id/menu_rate"
+        android:title="Rate in Google Play"
+        android:showAsAction="never"/>
+</menu>

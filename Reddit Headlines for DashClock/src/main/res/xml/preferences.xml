@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:key="subreddit"
+        android:title="@string/pref_subreddit_title"
+        android:defaultValue=""
+        android:selectAllOnFocus="true"
+        android:inputType="text"
+        android:capitalize="none"
+        android:singleLine="true"
+        android:maxLines="1" />
+    <ListPreference
+        android:key="sortOrder"
+        android:title="@string/pref_sort_title"
+        android:defaultValue="hot"
+        android:entryValues="@array/sort_entries"
+        android:entries="@array/sort_entries"/>
+    <Preference
+        android:key="@string/pref_account"
+        android:title="Reddit Account" />
+    <CheckBoxPreference
+        android:key="usePreview"
+        android:title="Use built-in preview for images"/>
+    <ListPreference
+        android:key="actionOnClick"
+        android:title="Action on Click"
+        android:defaultValue="@string/open_link"
+        android:entryValues="@array/action_entries"
+        android:entries="@array/action_entries"/>
+
+</PreferenceScreen>
