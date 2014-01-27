@@ -4,9 +4,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
+import com.google.analytics.tracking.android.EasyTracker;
+import com.google.analytics.tracking.android.MapBuilder;
 import com.google.android.apps.dashclock.api.DashClockExtension;
 import com.google.android.apps.dashclock.api.ExtensionData;
 import com.trolldad.dashclock.redditheadlines.activity.ImgurPreviewActivity_;
+import com.trolldad.dashclock.redditheadlines.analytics.EventAction;
+import com.trolldad.dashclock.redditheadlines.analytics.EventCategory;
 import com.trolldad.dashclock.redditheadlines.imgur.ImgurClient;
 import com.trolldad.dashclock.redditheadlines.preferences.MyPrefs_;
 import com.trolldad.dashclock.redditheadlines.reddit.RedditClient;
@@ -50,7 +54,6 @@ public class RedditHeadlinesExtension extends DashClockExtension {
     @Override
     protected void onInitialize(boolean isReconnect) {
         super.onInitialize(isReconnect);
-        //android.os.Debug.waitForDebugger();
         Log.d(TAG, "onInitialize");
         setUpdateWhenScreenOn(true);
     }
@@ -79,15 +82,24 @@ public class RedditHeadlinesExtension extends DashClockExtension {
 
         if (response.getListing() != null) {
             RedditLink link = (RedditLink) response.getListing();
+
             publishUpdate(new ExtensionData()
                     .visible(true)
                     .icon(R.drawable.ic_reddit_white)
                     .status(mPrefs.sortOrder().get())
-                    .expandedTitle(link.title)
+                    .expandedTitle(link.title.replace("&amp;", "&"))
                     .expandedBody(getExpandedBody(link))
                     .contentDescription("reddit")
                     .clickIntent(getClickIntent(link)));
             Log.d(TAG, "Publishing update: " + link.title + " - " + getExpandedBody(link));
+
+            EasyTracker.getInstance(this).send(
+                    MapBuilder.createEvent(
+                            EventCategory.SERVICE,
+                            EventAction.PUBLISH_UPDATE,
+                            link.permalink,
+                            null
+                    ).build());
         }
         else {
             Log.e(TAG, "Failed to parse listings.");

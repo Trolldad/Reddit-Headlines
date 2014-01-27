@@ -28,4 +28,8 @@ public interface MyPrefs {
     String actionOnClick();
 
     boolean usePreview();
+
+    boolean hqImages();
+
+    boolean backToDaydream();
 }

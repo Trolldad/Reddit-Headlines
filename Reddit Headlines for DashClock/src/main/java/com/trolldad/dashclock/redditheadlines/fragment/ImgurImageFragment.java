@@ -1,10 +1,12 @@
 package com.trolldad.dashclock.redditheadlines.fragment;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -13,18 +15,21 @@ import com.trolldad.dashclock.redditheadlines.RedditHeadlinesApplication;
 import com.trolldad.dashclock.redditheadlines.imgur.ImgurClient;
 import com.trolldad.dashclock.redditheadlines.imgur.ImgurImage;
 import com.trolldad.dashclock.redditheadlines.imgur.ImgurImageResponse;
+import com.trolldad.dashclock.redditheadlines.preferences.MyPrefs_;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
-import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
+import org.androidannotations.annotations.res.IntegerRes;
 import org.androidannotations.annotations.res.StringRes;
+import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 import it.sephiroth.android.library.imagezoom.ImageViewTouchBase;
@@ -33,7 +38,6 @@ import it.sephiroth.android.library.imagezoom.ImageViewTouchBase;
  * Created by jacob-tabak on 1/19/14.
  */
 @EFragment(R.layout.fragment_imgur_image)
-@OptionsMenu(R.menu.menu_image_fragment)
 public class ImgurImageFragment extends Fragment {
     @FragmentArg
     String mImageId;
@@ -50,14 +54,27 @@ public class ImgurImageFragment extends Fragment {
     @ViewById(R.id.webview)
     WebView mWebView;
 
-    @StringRes(R.string.thumb_size)
+    @ViewById(R.id.hq_button)
+    Button mHighQualityButton;
+
+    @StringRes(R.string.thumb_suffix)
     String mThumbSize;
+
+    @IntegerRes(R.integer.thumb_dimension)
+    int mThumbDimension;
 
     @StringRes(R.string.bounding_html)
     String mBoundingHtml;
 
+    @Pref
+    MyPrefs_ mPrefs;
+
+    @InstanceState
+    boolean mHighQuality;
+
     @AfterViews
     void init() {
+        mHighQuality = mPrefs.hqImages().get();
         if (mImage == null) {
             loadImageInfo();
         }
@@ -95,12 +112,17 @@ public class ImgurImageFragment extends Fragment {
 
     @UiThread
     void displayImage() {
-        if (mImage != null && mImageView != null && mWebView != null) {
+        if (mImageView != null && mWebView != null) {
+            String resizeArg = mHighQuality ? "" : mThumbSize;
             Picasso.with(mImageView.getContext())
-                    .load(mImage.getThumb(mThumbSize))
+                    .load(mImage.getResizedImage(resizeArg))
                     .placeholder(R.drawable.ic_content_picture)
                     .noFade()
                     .into(mImageView, new ImageLoadedCallback());
+            if (!mHighQuality && mImage.isHighQualityAvailable(mThumbDimension)) {
+                mHighQualityButton.setVisibility(View.VISIBLE);
+            }
+
             if (mImage.animated) {
                 RedditHeadlinesApplication.toast("Loading animation, hang tight!");
                 String html = String.format(mBoundingHtml, mImage.link);
@@ -121,20 +143,23 @@ public class ImgurImageFragment extends Fragment {
         }
     }
 
-    @OptionsItem(R.id.menu_hq)
+    @Click(R.id.hq_button)
     void onHighQualityClicked() {
-        // If the image is small enough to be rendered, render it, otherwise grab a huge thumbnail
-        String imageUrl;
-        if (mImage != null && mImage.width < 2048 && mImage.height < 2048) {
-            imageUrl = mImage.link;
-        }
-        else {
-            imageUrl = mImage.getThumb("h");
-        }
-        RedditHeadlinesApplication.toast("Getting HQ image...");
         Picasso.with(mImageView.getContext())
-                .load(imageUrl)
+                .load(mImage.getResizedImage(ImgurImage.ORIGINAL_SIZE))
                 .placeholder(mImageView.getDrawable())
-                .into(mImageView);
+                .into(mImageView, new HQCompleteCallback());
+        mHighQualityButton.setText("Loading HQ...");
+    }
+
+    class HQCompleteCallback implements Callback {
+        @Override
+        public void onSuccess() {
+            mHighQualityButton.setVisibility(View.GONE);
+        }
+
+        @Override
+        public void onError() {
+        }
     }
 }

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="thumb_size">l</string>
+    <string name="thumb_suffix">l</string>
+    <integer name="thumb_dimension">640</integer>
 </resources>

@@ -11,6 +11,7 @@ import android.view.View;
 import com.squareup.otto.Subscribe;
 import com.trolldad.dashclock.redditheadlines.R;
 import com.trolldad.dashclock.redditheadlines.RedditHeadlinesExtension;
+import com.trolldad.dashclock.redditheadlines.activity.AboutActivity_;
 import com.trolldad.dashclock.redditheadlines.otto.LoginService;
 import com.trolldad.dashclock.redditheadlines.otto.MyBus;
 import com.trolldad.dashclock.redditheadlines.preferences.MyPrefs_;
@@ -50,6 +51,15 @@ public class PrefsFragment extends PreferenceFragment implements SharedPreferenc
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
                         LoginDialogFragment_.builder().build().show(getFragmentManager(), "login");
+                        return true;
+                    }
+                }
+        );
+        findPreference("about").setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        startActivity(AboutActivity_.intent(PrefsFragment.this).get());
                         return true;
                     }
                 }
@@ -117,12 +127,25 @@ public class PrefsFragment extends PreferenceFragment implements SharedPreferenc
                         "Clicking a link will open the link directly" :
                         "Clicking a link will open up the comments page (or your other Reddit app)"
         );
+        setSummary(mPrefs.hqImages(),
+                mPrefs.hqImages().get() ?
+                        "Full size images will always be loaded first" :
+                        "Large thumbnails will be displayed first"
+        );
+        setSummary(mPrefs.backToDaydream(),
+                mPrefs.backToDaydream().get() ?
+                        "The back button resumes Daydream" :
+                        "The back button functions normally"
+        );
     }
 
     @Subscribe
     public void onLoginResult(LoginService.LoginResultEvent e) {
         if (e.result && findPreference(mPrefs.redditUser().key()) != null) {
             setSummary(mPrefs.redditUser(), "Logged in as " + mPrefs.redditUser().get());
+        }
+        else {
+            setSummary(mPrefs.redditUser(), "You are not logged in.  Tap here to log in.");
         }
     }
 

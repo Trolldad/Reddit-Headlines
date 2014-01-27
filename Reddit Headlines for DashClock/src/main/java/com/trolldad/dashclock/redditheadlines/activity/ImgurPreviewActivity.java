@@ -14,11 +14,20 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.analytics.tracking.android.EasyTracker;
+import com.google.analytics.tracking.android.MapBuilder;
+import com.squareup.otto.Subscribe;
 import com.trolldad.dashclock.redditheadlines.R;
 import com.trolldad.dashclock.redditheadlines.RedditHeadlinesApplication;
+import com.trolldad.dashclock.redditheadlines.analytics.EventAction;
+import com.trolldad.dashclock.redditheadlines.analytics.EventCategory;
 import com.trolldad.dashclock.redditheadlines.fragment.ImgurAlbumFragment_;
 import com.trolldad.dashclock.redditheadlines.fragment.ImgurImageFragment_;
+import com.trolldad.dashclock.redditheadlines.fragment.LoginDialogFragment_;
 import com.trolldad.dashclock.redditheadlines.imgur.ImgurClient;
+import com.trolldad.dashclock.redditheadlines.otto.LoginService;
+import com.trolldad.dashclock.redditheadlines.otto.MyBus;
+import com.trolldad.dashclock.redditheadlines.preferences.MyPrefs_;
 import com.trolldad.dashclock.redditheadlines.reddit.RedditClient;
 import com.trolldad.dashclock.redditheadlines.reddit.RedditLink;
 import com.trolldad.dashclock.redditheadlines.reddit.RedditListingsResponse;
@@ -36,8 +45,10 @@ import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.StringRes;
+import org.androidannotations.annotations.sharedpreferences.Pref;
 import org.ocpsoft.prettytime.PrettyTime;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -64,6 +75,9 @@ public class ImgurPreviewActivity extends Activity {
 
     @Bean
     RedditClient mRedditClient;
+
+    @Bean
+    MyBus mBus;
 
     @InstanceState
     boolean mFullscreen;
@@ -110,12 +124,39 @@ public class ImgurPreviewActivity extends Activity {
     @InstanceState
     boolean mFragmentAdded;
 
+    @Pref
+    MyPrefs_ mPrefs;
+
     private RedditLink mLink;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EasyTracker.getInstance(this).activityStart(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EasyTracker.getInstance(this).activityStop(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mBus.register(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mBus.unregister(this);
     }
 
     @AfterViews
@@ -134,6 +175,29 @@ public class ImgurPreviewActivity extends Activity {
             onFullscreenClicked();
         }
         FontHelper.setCustomFont(findViewById(android.R.id.content), getAssets());
+    }
+
+    @Subscribe
+    public void onLoginStatusUpdated(LoginService.LoginResultEvent e) {
+        getLink();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        if (mPrefs.backToDaydream().get()) {
+
+            try {
+                // Major hack, who knows if it will continue to work?
+                final Intent intent = new Intent(Intent.ACTION_MAIN);
+                intent.setClassName("com.android.systemui", "com.android.systemui.Somnambulator");
+                startActivity(intent);
+            }
+            catch (Exception e) {
+                Log.e(RedditHeadlinesApplication.TAG, Log.getStackTraceString(e));
+            }
+        }
     }
 
     @Background
@@ -159,7 +223,7 @@ public class ImgurPreviewActivity extends Activity {
         );
 
         invalidateOptionsMenu();
-        mCaptionTextView.setText(mLink.title);
+        mCaptionTextView.setText(mLink.title.replace("&amp;", "&"));
         mScoreTextView.setText(mLink.score);
         mUpvoteTextView.setText(mLink.ups);
         mDownvoteTextView.setText(mLink.downs);
@@ -213,12 +277,29 @@ public class ImgurPreviewActivity extends Activity {
             id = id.substring(0, id.indexOf("#"));
         }
 
-        if (pathSegments.size() > 1 && pathSegments.get(0).equals(ImgurClient.ALBUM)) {
-            return ImgurAlbumFragment_.builder().mAlbumId(id).build();
+        if (pathSegments.size() > 1 && pathSegments.get(0).equalsIgnoreCase(ImgurClient.GALLERY)) {
+            pathSegments = new LinkedList<String>(pathSegments);
+            pathSegments.set(0, ImgurClient.ALBUM);
+        }
+        Fragment fragment;
+        String action;
+        if (pathSegments.size() > 1 && pathSegments.get(0).equalsIgnoreCase(ImgurClient.ALBUM)) {
+            fragment = ImgurAlbumFragment_.builder().mAlbumId(id).build();
+            action = EventAction.VIEW_ALBUM;
         }
         else {
-            return ImgurImageFragment_.builder().mImageId(id).build();
+            fragment = ImgurImageFragment_.builder().mImageId(id).build();
+            action = EventAction.VIEW_IMAGE;
         }
+        EasyTracker.getInstance(this).send(
+                MapBuilder.createEvent(
+                        EventCategory.CONTENT,
+                        action,
+                        mLinkUrl,
+                        null
+                ).build()
+        );
+        return fragment;
     }
 
     @Click(R.id.menu_link)
@@ -235,6 +316,9 @@ public class ImgurPreviewActivity extends Activity {
 
     @Click(R.id.menu_upvote)
     public void onUpvoteClicked() {
+        if (!isUserLoggedIn()) {
+            return;
+        }
         if (mLink != null) {
             if (mLink.likes == null || mLink.likes == false) {
                 mLink.likes = true;
@@ -253,6 +337,9 @@ public class ImgurPreviewActivity extends Activity {
 
     @Click(R.id.menu_downvote)
     public void onDownvoteClicked() {
+        if (!isUserLoggedIn()) {
+            return;
+        }
         // This is a bit tricky because there are 3 states, up down and neutral
         if (mLink != null) {
             if (mLink.likes == null || mLink.likes == true) {
@@ -271,6 +358,9 @@ public class ImgurPreviewActivity extends Activity {
 
     @Click(R.id.menu_save)
     public void onSaveClicked() {
+        if (!isUserLoggedIn()) {
+            return;
+        }
         if (mLink != null) {
             save (!mLink.saved);
         }
@@ -281,6 +371,9 @@ public class ImgurPreviewActivity extends Activity {
 
     @Click(R.id.menu_hide)
     public void onHideClicked() {
+        if (!isUserLoggedIn()) {
+            return;
+        }
         if (mLink != null) {
             hide(!mLink.hidden);
         }
@@ -298,6 +391,9 @@ public class ImgurPreviewActivity extends Activity {
 
     @Background
     void save(boolean save) {
+        if (!isUserLoggedIn()) {
+            return;
+        }
         mLink.saved = save;
         invalidateFakeActionBar();
         try {
@@ -319,6 +415,9 @@ public class ImgurPreviewActivity extends Activity {
 
     @Background
     void hide(boolean hidden) {
+        if (!isUserLoggedIn()) {
+            return;
+        }
         mLink.hidden = hidden;
         invalidateFakeActionBar();
         try {
@@ -380,6 +479,15 @@ public class ImgurPreviewActivity extends Activity {
 
     @OptionsItem(R.id.menu_rate)
     void onRateClicked() {
-        return;
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.trolldad.dashclock.redditheadlines")));
+    }
+
+    boolean isUserLoggedIn() {
+        if (mPrefs.cookie().get().length() == 0) {
+            LoginDialogFragment_.builder().build().show(getFragmentManager(), "login");
+            return false;
+        } else {
+            return true;
+        }
     }
 }

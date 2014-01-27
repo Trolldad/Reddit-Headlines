@@ -1,5 +1,6 @@
 package com.trolldad.dashclock.redditheadlines.fragment;
 
+import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -8,6 +9,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.analytics.tracking.android.EasyTracker;
+import com.google.analytics.tracking.android.Fields;
+import com.google.analytics.tracking.android.MapBuilder;
 import com.trolldad.dashclock.redditheadlines.R;
 import com.trolldad.dashclock.redditheadlines.RedditHeadlinesApplication;
 import com.trolldad.dashclock.redditheadlines.RedditHeadlinesExtension;
@@ -89,6 +93,7 @@ public class LoginDialogFragment extends DialogFragment {
         mPrefs.redditPassword().put("");
         mPrefs.cookie().put("");
         dismiss();
+        mLoginService.onLoginResult(false);
     }
 
     @Background

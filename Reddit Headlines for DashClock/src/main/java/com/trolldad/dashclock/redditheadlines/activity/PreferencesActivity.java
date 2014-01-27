@@ -7,6 +7,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.trolldad.dashclock.redditheadlines.R;
 import com.trolldad.dashclock.redditheadlines.fragment.LoginDialogFragment_;
 import com.trolldad.dashclock.redditheadlines.preferences.MyPrefs;
@@ -22,10 +23,15 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
  */
 @EActivity(R.layout.activity_preferences)
 public class PreferencesActivity extends Activity {
-/*
-    @AfterViews
-    public void afterViews() {
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EasyTracker.getInstance(this).activityStart(this);
     }
-    */
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EasyTracker.getInstance(this).activityStop(this);
+    }
 }

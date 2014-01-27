@@ -82,6 +82,7 @@ public class RedditClient {
 
     public static Gson getGson() {
         Gson gson = new GsonBuilder()
+                .disableHtmlEscaping()
                 .registerTypeAdapter(RedditListing.class, new ListingTypeConverter())
                 .registerTypeAdapter(DateTime.class, new DateTimeTypeConverter()).create();
         return gson;

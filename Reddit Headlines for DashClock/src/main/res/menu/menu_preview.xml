@@ -13,15 +13,15 @@
         android:icon="@drawable/ic_action_av_full_screen"/>
     <item
         android:id="@+id/menu_preferences"
-        android:title="Extension Preferences"
+        android:title="Preferences"
         android:showAsAction="never"
         android:icon="@drawable/ic_action_settings"/>
     <item
         android:id="@+id/menu_feedback"
-        android:title="Developer Feedback"
+        android:title="Feedback"
         android:showAsAction="never" />
     <item
         android:id="@+id/menu_rate"
-        android:title="Rate in Google Play"
+        android:title="Rate"
         android:showAsAction="never"/>
 </menu>

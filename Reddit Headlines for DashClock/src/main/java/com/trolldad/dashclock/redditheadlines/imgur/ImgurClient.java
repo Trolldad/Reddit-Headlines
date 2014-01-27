@@ -34,6 +34,7 @@ import retrofit.mime.TypedInput;
 @EBean
 public class ImgurClient {
     public static final String ALBUM = "a";
+    public static final String GALLERY = "gallery";
 
     @StringRes(R.string.imgur_api_url) String mImgurApiUrl;
 
@@ -63,6 +64,7 @@ public class ImgurClient {
 
     public static Gson getGson() {
         Gson gson = new GsonBuilder()
+                .disableHtmlEscaping()
                 .registerTypeAdapter(DateTime.class, new DateTimeTypeConverter()).create();
         return gson;
     }

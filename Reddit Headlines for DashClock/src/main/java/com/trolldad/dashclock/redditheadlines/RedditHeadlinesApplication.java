@@ -4,6 +4,10 @@ import android.app.Application;
 import android.content.Context;
 import android.widget.Toast;
 
+import com.google.analytics.tracking.android.EasyTracker;
+import com.google.analytics.tracking.android.ExceptionReporter;
+import com.trolldad.dashclock.redditheadlines.analytics.AnalyticsExceptionParser;
+
 import org.androidannotations.annotations.EApplication;
 import org.androidannotations.annotations.UiThread;
 
@@ -18,6 +22,12 @@ public class RedditHeadlinesApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        EasyTracker.getInstance(this);
+        Thread.UncaughtExceptionHandler uncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
+        if (uncaughtExceptionHandler instanceof ExceptionReporter) {
+            ExceptionReporter exceptionReporter = (ExceptionReporter) uncaughtExceptionHandler;
+            exceptionReporter.setExceptionParser(new AnalyticsExceptionParser());
+        }
         mInstance = this;
     }
 

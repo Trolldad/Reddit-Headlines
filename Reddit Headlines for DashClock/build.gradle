@@ -21,14 +21,13 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 19
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.0.1"
     }
 
-    if(new File("../keystore.properties").exists()) {
-
+    if(new File("keystore.properties").exists()) {
         Properties props = new Properties()
-        props.load(new FileInputStream(file("../keystore.properties")))
+        props.load(new FileInputStream(file("keystore.properties")))
 
         signingConfigs {
             release {
@@ -37,6 +36,11 @@ android {
                 keyAlias props['keyAlias']
                 keyPassword props['keyPassword']
             }
+        }
+    }
+    else {
+        signingConfigs {
+            release { }
         }
     }
 
@@ -54,7 +58,6 @@ dependencies {
     compile 'com.google.android.apps.dashclock:dashclock-api:2.0.0'
     apt 'org.androidannotations:androidannotations:3.0'
     compile 'org.androidannotations:androidannotations-api:3.0'
-    compile 'com.squareup.okhttp:okhttp:1.2.1'
     compile 'joda-time:joda-time:2.3'
     compile 'it.sephiroth.android.library.imagezoom:library:+'
     compile 'com.squareup.retrofit:retrofit:1.3.0'
@@ -62,6 +65,7 @@ dependencies {
     compile 'org.ocpsoft.prettytime:prettytime:3.2.4.Final'
     compile 'com.squareup:otto:1.3.4'
     compile project(':ViewPagerIndicator')
+    compile files('libs/libGoogleAnalyticsServices.jar')
 }
 
 afterEvaluate {

@@ -2,7 +2,13 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent">
-
+    <ImageView
+        android:src="@drawable/ic_content_picture"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_alignParentTop="true"
+        android:layout_above="@+id/album_line_page_indicator"/>
     <android.support.v4.view.ViewPager
         android:id="@+id/album_viewpager"
         android:layout_height="0dp"

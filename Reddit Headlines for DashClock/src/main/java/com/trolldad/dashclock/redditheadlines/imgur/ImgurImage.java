@@ -8,6 +8,9 @@ import java.io.Serializable;
  * Created by jacob-tabak on 1/18/14.
  */
 public class ImgurImage implements Serializable {
+    public static final String THUMB_SIZE_HUGE = "h";
+    public static final String ORIGINAL_SIZE = "";
+    public static final int MAX_WIDTH_OR_HEIGHT = 2048;
     public String id;
     public String title;
     public String description;
@@ -26,14 +29,22 @@ public class ImgurImage implements Serializable {
     /**
      * Gets a thumb, more info here: http://api.imgur.com/models/image
      *
-     * @param size
+     * @param suffix
      * @return
      */
-    public String getThumb(String size) {
+    public String getResizedImage(String suffix) {
+        // if they don't want a thumb, make sure the image is small enough to display
+        if (suffix.length() == 0 && (width > MAX_WIDTH_OR_HEIGHT || height > MAX_WIDTH_OR_HEIGHT)) {
+            suffix = THUMB_SIZE_HUGE;
+        }
         int dotPosition = link.lastIndexOf(".");
         StringBuilder thumbBuilder = new StringBuilder(link.substring(0, dotPosition));
-        thumbBuilder.append(size);
+        thumbBuilder.append(suffix);
         thumbBuilder.append(link.substring(dotPosition));
         return thumbBuilder.toString();
+    }
+
+    public boolean isHighQualityAvailable(int thumbDimension) {
+        return (width > thumbDimension || height > thumbDimension);
     }
 }

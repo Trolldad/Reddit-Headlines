@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="ga_trackingId" tools:ignore="TypographyDashes">UA-47492760-1</string>
+    <bool name="ga_autoActivityTracking">true</bool>
+    <bool name="ga_reportUncaughtExceptions">true</bool>
+    <string name="com.trolldad.dashclock.redditheadlines.activity.ImgurPreviewActivity_">Imgur Preview</string>
+    <string name="com.trolldad.dashclock.redditheadlines.activity.AboutActivity_">About</string>
+    <string name="com.trolldad.dashclock.redditheadlines.activity.PreferencesActivity_">Preferences</string>
+</resources>

@@ -2,6 +2,7 @@
     package="com.trolldad.dashclock.redditheadlines">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <application android:allowBackup="true"
         android:name=".RedditHeadlinesApplication_"
         android:label="@string/my_app_name"
@@ -26,9 +27,11 @@
         <activity android:name=".activity.PreferencesActivity_"
             android:label="@string/title_settings"
             android:exported="true" />
+        <activity android:name=".activity.AboutActivity_"/>
         <activity android:name=".testactivity.LaunchAnimatedGifActivity" android:exported="true"/>
         <activity android:name=".testactivity.LaunchImageActivity" android:exported="true"/>
         <activity android:name=".testactivity.LaunchGalleryActivity" android:exported="true"/>
+        <activity android:name=".testactivity.LaunchAmpersandActivity" android:exported="true"/>
     </application>
 
 </manifest>
