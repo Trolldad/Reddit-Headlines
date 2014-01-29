@@ -93,14 +93,14 @@
             android:layout_height="?android:attr/actionBarSize"
             android:gravity="center"
             android:background="@drawable/fake_split_actionbar_background">
-            <com.trolldad.dashclock.redditheadlines.view.FakeActionBarIcon
+            <net.trolldad.dashclock.redditheadlines.view.FakeActionBarIcon
                 android:id="@+id/menu_save"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:background="@drawable/fake_actionbar_icon_background"
                 android:contentDescription="Save to Reddit"
                 android:src="@drawable/ic_action_save_unchecked"/>
-            <com.trolldad.dashclock.redditheadlines.view.FakeActionBarIcon
+            <net.trolldad.dashclock.redditheadlines.view.FakeActionBarIcon
                 android:id="@+id/menu_upvote"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -109,7 +109,7 @@
                 android:background="@drawable/fake_actionbar_icon_background"
                 android:contentDescription="Upvote"
                 android:src="@drawable/ic_action_upvote_unchecked"/>
-            <com.trolldad.dashclock.redditheadlines.view.FakeActionBarIcon
+            <net.trolldad.dashclock.redditheadlines.view.FakeActionBarIcon
                 android:id="@+id/menu_comments"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -118,7 +118,7 @@
                 android:background="@drawable/fake_actionbar_icon_background"
                 android:contentDescription="View Comments"
                 android:src="@drawable/ic_action_comments"/>
-            <com.trolldad.dashclock.redditheadlines.view.FakeActionBarIcon
+            <net.trolldad.dashclock.redditheadlines.view.FakeActionBarIcon
                 android:id="@+id/menu_downvote"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -127,7 +127,7 @@
                 android:background="@drawable/fake_actionbar_icon_background"
                 android:contentDescription="Downvote"
                 android:src="@drawable/ic_action_downvote_unchecked"/>
-            <com.trolldad.dashclock.redditheadlines.view.FakeActionBarIcon
+            <net.trolldad.dashclock.redditheadlines.view.FakeActionBarIcon
                 android:id="@+id/menu_hide"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -136,7 +136,7 @@
                 android:background="@drawable/fake_actionbar_icon_background"
                 android:contentDescription="Hide Link"
                 android:src="@drawable/ic_action_hide_unchecked"/>
-            <com.trolldad.dashclock.redditheadlines.view.FakeActionBarIcon
+            <net.trolldad.dashclock.redditheadlines.view.FakeActionBarIcon
                 android:id="@+id/menu_link"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"

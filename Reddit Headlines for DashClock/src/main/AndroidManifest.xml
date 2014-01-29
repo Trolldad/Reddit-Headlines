@@ -1,16 +1,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.trolldad.dashclock.redditheadlines">
+    package="net.trolldad.dashclock.redditheadlines">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <application android:allowBackup="true"
-        android:name=".RedditHeadlinesApplication_"
+        android:name="net.trolldad.dashclock.redditheadlines.RedditHeadlinesApplication_"
         android:label="@string/my_app_name"
         android:theme="@android:style/Theme.Holo"
         android:icon="@drawable/ic_reddit_white">
-        <activity android:name=".activity.PreviewActivity_"
+        <activity android:name="net.trolldad.dashclock.redditheadlines.activity.PreviewActivity_"
             android:exported="true"/>
-        <service android:name="com.trolldad.dashclock.redditheadlines.RedditHeadlinesExtension_"
+        <service android:name="net.trolldad.dashclock.redditheadlines.RedditHeadlinesExtension_"
             android:icon="@drawable/ic_reddit_white"
             android:label="@string/extension_title_1"
             android:permission="com.google.android.apps.dashclock.permission.READ_EXTENSION_DATA">
@@ -24,15 +24,15 @@
             <meta-data android:name="settingsActivity"
                 android:value=".activity.PreferencesActivity_" />
         </service>
-        <activity android:name=".activity.PreferencesActivity_"
+        <activity android:name="net.trolldad.dashclock.redditheadlines.activity.PreferencesActivity_"
             android:label="@string/title_settings"
             android:exported="true" />
-        <activity android:name=".activity.AboutActivity_"/>
-        <activity android:name=".testactivity.LaunchAnimatedGifActivity" android:exported="true"/>
-        <activity android:name=".testactivity.LaunchImageActivity" android:exported="true"/>
-        <activity android:name=".testactivity.LaunchGalleryActivity" android:exported="true"/>
-        <activity android:name=".testactivity.LaunchAmpersandActivity" android:exported="true"/>
-        <activity android:name=".testactivity.LaunchNonImgurActivity" android:exported="true"/>
+        <activity android:name="net.trolldad.dashclock.redditheadlines.activity.AboutActivity_"/>
+        <activity android:name="net.trolldad.dashclock.redditheadlines.testactivity.LaunchAnimatedGifActivity" android:exported="true"/>
+        <activity android:name="net.trolldad.dashclock.redditheadlines.testactivity.LaunchImageActivity" android:exported="true"/>
+        <activity android:name="net.trolldad.dashclock.redditheadlines.testactivity.LaunchGalleryActivity" android:exported="true"/>
+        <activity android:name="net.trolldad.dashclock.redditheadlines.testactivity.LaunchAmpersandActivity" android:exported="true"/>
+        <activity android:name="net.trolldad.dashclock.redditheadlines.testactivity.LaunchNonImgurActivity" android:exported="true"/>
     </application>
 
 </manifest>

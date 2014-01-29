@@ -7,7 +7,7 @@
     <EditTextPreference
         android:key="subreddit"
         android:title="@string/pref_subreddit_title"
-        android:defaultValue=""
+        android:defaultValue="pics"
         android:selectAllOnFocus="true"
         android:inputType="text"
         android:dialogTitle="Subreddit"
@@ -23,6 +23,7 @@
         android:entries="@array/sort_entries"/>
     <CheckBoxPreference
         android:key="usePreview"
+        android:defaultValue="true"
         android:title="Use built-in preview for images"/>
     <CheckBoxPreference
         android:dependency="usePreview"
