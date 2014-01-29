@@ -1,17 +1,12 @@
 package com.trolldad.dashclock.redditheadlines.fragment;
 
-import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import com.google.analytics.tracking.android.EasyTracker;
-import com.google.analytics.tracking.android.Fields;
-import com.google.analytics.tracking.android.MapBuilder;
 import com.trolldad.dashclock.redditheadlines.R;
 import com.trolldad.dashclock.redditheadlines.RedditHeadlinesApplication;
 import com.trolldad.dashclock.redditheadlines.RedditHeadlinesExtension;
@@ -115,7 +110,7 @@ public class LoginDialogFragment extends DialogFragment {
             }
         }
         catch (Exception e) {
-            Log.e(RedditHeadlinesExtension.TAG, Log.getStackTraceString(e));
+            Log.e(RedditHeadlinesApplication.TAG, Log.getStackTraceString(e));
             loginFailed(new String[0][0]);
         }
     }
@@ -127,7 +122,7 @@ public class LoginDialogFragment extends DialogFragment {
         }
         RedditHeadlinesApplication.toast("Login Failed");
         mLoginService.onLoginResult(false);
-        Log.d(RedditHeadlinesExtension.TAG, "Login failed: " + errors);
+        Log.d(RedditHeadlinesApplication.TAG, "Login failed: " + errors);
     }
 
     @UiThread
@@ -142,7 +137,7 @@ public class LoginDialogFragment extends DialogFragment {
                 .cookie().put(loginData.cookie)
                 .apply();
         mLoginService.onLoginResult(true);
-        Log.d(RedditHeadlinesExtension.TAG, "Login successful");
+        Log.d(RedditHeadlinesApplication.TAG, "Login successful");
     }
 
     @Click(R.id.dialog_login_cancel_button)

@@ -2,6 +2,10 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/menu_share"
+        android:title="Share"
+        android:showAsAction="never"/>
+    <item
         android:id="@+id/menu_refresh"
         android:title="Refresh"
         android:showAsAction="never"
@@ -23,5 +27,9 @@
     <item
         android:id="@+id/menu_rate"
         android:title="Rate"
+        android:showAsAction="never"/>
+    <item
+        android:id="@+id/menu_daydream"
+        android:title="Start Daydream"
         android:showAsAction="never"/>
 </menu>

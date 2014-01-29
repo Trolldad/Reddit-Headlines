@@ -2,6 +2,7 @@ package com.trolldad.dashclock.redditheadlines.preferences;
 
 import com.trolldad.dashclock.redditheadlines.R;
 
+import org.androidannotations.annotations.sharedpreferences.DefaultBoolean;
 import org.androidannotations.annotations.sharedpreferences.DefaultRes;
 import org.androidannotations.annotations.sharedpreferences.DefaultString;
 import org.androidannotations.annotations.sharedpreferences.SharedPref;
@@ -27,9 +28,8 @@ public interface MyPrefs {
     @DefaultRes(R.string.open_link)
     String actionOnClick();
 
+    @DefaultBoolean(true)
     boolean usePreview();
 
     boolean hqImages();
-
-    boolean backToDaydream();
 }

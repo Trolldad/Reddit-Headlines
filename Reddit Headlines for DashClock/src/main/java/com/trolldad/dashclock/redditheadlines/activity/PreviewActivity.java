@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +15,11 @@ import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.MapBuilder;
+import com.google.analytics.tracking.android.Tracker;
 import com.squareup.otto.Subscribe;
 import com.trolldad.dashclock.redditheadlines.R;
 import com.trolldad.dashclock.redditheadlines.RedditHeadlinesApplication;
@@ -24,9 +28,11 @@ import com.trolldad.dashclock.redditheadlines.analytics.EventCategory;
 import com.trolldad.dashclock.redditheadlines.fragment.ImgurAlbumFragment_;
 import com.trolldad.dashclock.redditheadlines.fragment.ImgurImageFragment_;
 import com.trolldad.dashclock.redditheadlines.fragment.LoginDialogFragment_;
+import com.trolldad.dashclock.redditheadlines.fragment.ShareDialogFragment_;
 import com.trolldad.dashclock.redditheadlines.imgur.ImgurClient;
 import com.trolldad.dashclock.redditheadlines.otto.LoginService;
 import com.trolldad.dashclock.redditheadlines.otto.MyBus;
+import com.trolldad.dashclock.redditheadlines.otto.UpdateService;
 import com.trolldad.dashclock.redditheadlines.preferences.MyPrefs_;
 import com.trolldad.dashclock.redditheadlines.reddit.RedditClient;
 import com.trolldad.dashclock.redditheadlines.reddit.RedditLink;
@@ -50,13 +56,14 @@ import org.ocpsoft.prettytime.PrettyTime;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by jacob-tabak on 1/4/14.
  */
 @EActivity(R.layout.activity_imgur_preview)
 @OptionsMenu(R.menu.menu_preview)
-public class ImgurPreviewActivity extends Activity {
+public class PreviewActivity extends Activity {
     public static final int UPVOTE = 1;
     public static final int UNVOTE = 0;
     public static final int DOWNVOTE = -1;
@@ -70,14 +77,26 @@ public class ImgurPreviewActivity extends Activity {
     @Extra
     String mCommentsUrl;
 
-    @StringRes(R.string.reddit_api_url)
+    @StringRes(R.string.reddit_base_url)
     String mRedditUrl;
+
+    @StringRes(R.string.play_store_url)
+    String mPlayStoreUrl;
+
+    @StringRes(R.string.provider_authority)
+    String mProviderAuthority;
+
+    @StringRes(R.string.provider_path)
+    String mProviderPath;
 
     @Bean
     RedditClient mRedditClient;
 
     @Bean
     MyBus mBus;
+
+    @Bean
+    UpdateService mUpdateService;
 
     @InstanceState
     boolean mFullscreen;
@@ -124,10 +143,11 @@ public class ImgurPreviewActivity extends Activity {
     @InstanceState
     boolean mFragmentAdded;
 
+    @InstanceState
+    RedditLink mLink;
+
     @Pref
     MyPrefs_ mPrefs;
-
-    private RedditLink mLink;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,7 +181,12 @@ public class ImgurPreviewActivity extends Activity {
 
     @AfterViews
     void afterInject() {
-        getLink();
+        if (mLink == null) {
+            getLink();
+        }
+        else {
+            onLinkReceived();
+        }
         if (!mFragmentAdded) {
             getFragmentManager().beginTransaction().add(R.id.preview_fragment_container, getFragment(), "main").commit();
             mFragmentAdded = true;
@@ -182,24 +207,6 @@ public class ImgurPreviewActivity extends Activity {
         getLink();
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-
-        if (mPrefs.backToDaydream().get()) {
-
-            try {
-                // Major hack, who knows if it will continue to work?
-                final Intent intent = new Intent(Intent.ACTION_MAIN);
-                intent.setClassName("com.android.systemui", "com.android.systemui.Somnambulator");
-                startActivity(intent);
-            }
-            catch (Exception e) {
-                Log.e(RedditHeadlinesApplication.TAG, Log.getStackTraceString(e));
-            }
-        }
-    }
-
     @Background
     void getLink() {
         try {
@@ -211,6 +218,7 @@ public class ImgurPreviewActivity extends Activity {
             Log.e(RedditHeadlinesApplication.TAG, Log.getStackTraceString(e));
             RedditHeadlinesApplication.toast("Unable to load link.  Please try again later.");
         }
+        mUpdateService.onUpdateDashClock();
     }
 
     @UiThread
@@ -277,7 +285,7 @@ public class ImgurPreviewActivity extends Activity {
             id = id.substring(0, id.indexOf("#"));
         }
 
-        if (pathSegments.size() > 1 && pathSegments.get(0).equalsIgnoreCase(ImgurClient.GALLERY)) {
+        if (uri.getHost().contains("imgur.com") && pathSegments.size() > 1 && pathSegments.get(0).equalsIgnoreCase(ImgurClient.GALLERY)) {
             pathSegments = new LinkedList<String>(pathSegments);
             pathSegments.set(0, ImgurClient.ALBUM);
         }
@@ -288,7 +296,7 @@ public class ImgurPreviewActivity extends Activity {
             action = EventAction.VIEW_ALBUM;
         }
         else {
-            fragment = ImgurImageFragment_.builder().mImageId(id).build();
+            fragment = ImgurImageFragment_.builder().mImageId(id).mUrl(mLinkUrl).build();
             action = EventAction.VIEW_IMAGE;
         }
         EasyTracker.getInstance(this).send(
@@ -479,7 +487,28 @@ public class ImgurPreviewActivity extends Activity {
 
     @OptionsItem(R.id.menu_rate)
     void onRateClicked() {
-        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.trolldad.dashclock.redditheadlines")));
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(mPlayStoreUrl)));
+    }
+
+    @OptionsItem(R.id.menu_share)
+    void onShareClicked() {
+        ShareDialogFragment_.builder().mLink(mLink).build().show(getFragmentManager(), "share");
+    }
+
+    @OptionsItem(R.id.menu_daydream)
+    void onDaydreamClicked() {
+        try {
+            // Major hack, who knows if it will continue to work?
+            final Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.setClassName("com.android.systemui", "com.android.systemui.Somnambulator");
+            startActivity(intent);
+        }
+        catch (Exception e) {
+            EasyTracker.getInstance(this).send(MapBuilder.createException(Log.getStackTraceString(e), false).build());
+            Toast.makeText(this, "This feature is not supported on your device.", Toast.LENGTH_SHORT).show();
+            Log.e(RedditHeadlinesApplication.TAG, Log.getStackTraceString(e));
+        }
+
     }
 
     boolean isUserLoggedIn() {

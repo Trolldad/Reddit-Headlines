@@ -19,14 +19,9 @@ import org.joda.time.DateTime;
 
 import java.lang.reflect.Type;
 
-import retrofit.Callback;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
-import retrofit.converter.ConversionException;
 import retrofit.converter.GsonConverter;
-import retrofit.http.GET;
-import retrofit.http.Path;
-import retrofit.mime.TypedInput;
 
 /**
  * Created by jacob-tabak on 1/18/14.
@@ -65,6 +60,7 @@ public class ImgurClient {
     public static Gson getGson() {
         Gson gson = new GsonBuilder()
                 .disableHtmlEscaping()
+                .setPrettyPrinting()
                 .registerTypeAdapter(DateTime.class, new DateTimeTypeConverter()).create();
         return gson;
     }

@@ -8,7 +8,7 @@
         android:label="@string/my_app_name"
         android:theme="@android:style/Theme.Holo"
         android:icon="@drawable/ic_reddit_white">
-        <activity android:name=".activity.ImgurPreviewActivity_"
+        <activity android:name=".activity.PreviewActivity_"
             android:exported="true"/>
         <service android:name="com.trolldad.dashclock.redditheadlines.RedditHeadlinesExtension_"
             android:icon="@drawable/ic_reddit_white"
@@ -32,6 +32,7 @@
         <activity android:name=".testactivity.LaunchImageActivity" android:exported="true"/>
         <activity android:name=".testactivity.LaunchGalleryActivity" android:exported="true"/>
         <activity android:name=".testactivity.LaunchAmpersandActivity" android:exported="true"/>
+        <activity android:name=".testactivity.LaunchNonImgurActivity" android:exported="true"/>
     </application>
 
 </manifest>

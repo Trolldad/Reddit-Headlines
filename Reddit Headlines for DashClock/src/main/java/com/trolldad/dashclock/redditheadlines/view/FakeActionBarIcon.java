@@ -4,12 +4,9 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.trolldad.dashclock.redditheadlines.R;
 import com.trolldad.dashclock.redditheadlines.RedditHeadlinesApplication;
-
-import org.androidannotations.annotations.EView;
 
 /**
  * Created by jacob-tabak on 1/25/14.

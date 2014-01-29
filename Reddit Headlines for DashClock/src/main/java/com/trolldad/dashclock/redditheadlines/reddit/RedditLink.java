@@ -2,10 +2,12 @@ package com.trolldad.dashclock.redditheadlines.reddit;
 
 import org.joda.time.DateTime;
 
+import java.io.Serializable;
+
 /**
  * Created by jacob-tabak on 1/19/14.
  */
-public class RedditLink extends RedditListing {
+public class RedditLink extends RedditListing implements Serializable {
     public String id;
     public String name;
     public String domain;

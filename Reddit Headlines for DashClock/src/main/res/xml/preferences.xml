@@ -29,10 +29,6 @@
         android:key="hqImages"
         android:title="Always download HQ images"
         android:summary="When disabled, an HQ button will be available if applicable"/>
-    <CheckBoxPreference
-        android:dependency="usePreview"
-        android:key="backToDaydream"
-        android:title="Back to Daydream"/>
     <ListPreference
         android:key="actionOnClick"
         android:title="Action on Click"

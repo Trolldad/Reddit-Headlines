@@ -1,7 +1,6 @@
 package com.trolldad.dashclock.redditheadlines.fragment;
 
 import android.app.Fragment;
-import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
@@ -24,7 +23,6 @@ import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
-import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.IntegerRes;
@@ -44,6 +42,10 @@ public class ImgurImageFragment extends Fragment {
 
     @FragmentArg
     ImgurImage mImage;
+
+    // If it's not an imgur image and we need to load it directly
+    @FragmentArg
+    String mUrl;
 
     @Bean
     ImgurClient mImgurClient;
@@ -76,11 +78,28 @@ public class ImgurImageFragment extends Fragment {
     void init() {
         mHighQuality = mPrefs.hqImages().get();
         if (mImage == null) {
-            loadImageInfo();
+            if (!mUrl.contains("imgur.com")) {
+                // This is not an imgur image
+                if (mUrl.endsWith(".gif")) {
+                    RedditHeadlinesApplication.toast("Loading animation, hang tight!");
+                    String html = String.format(mBoundingHtml, mUrl);
+                    mWebView.loadDataWithBaseURL(null, html, "text/html", "utf-8", null);
+                }
+                else {
+                    Picasso.with(mImageView.getContext())
+                            .load(mUrl)
+                            .placeholder(R.drawable.ic_content_picture)
+                            .noFade()
+                            .into(mImageView);
+                }
+            }
+            else {
+                loadImageInfo();
+            }
         }
         else {
             mImageId = mImage.id;
-            displayImage();
+            displayImgurImage();
         }
         mWebView.setBackgroundColor(0xFF000000);
         mWebView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
@@ -102,7 +121,7 @@ public class ImgurImageFragment extends Fragment {
         try {
             ImgurImageResponse response = mImgurClient.getService().imageInfo(mImageId);
             mImage = response.getImage();
-            displayImage();
+            displayImgurImage();
         }
         catch (Exception e) {
             Log.e(RedditHeadlinesApplication.TAG, Log.getStackTraceString(e));
@@ -111,7 +130,7 @@ public class ImgurImageFragment extends Fragment {
     }
 
     @UiThread
-    void displayImage() {
+    void displayImgurImage() {
         if (mImageView != null && mWebView != null) {
             String resizeArg = mHighQuality ? "" : mThumbSize;
             Picasso.with(mImageView.getContext())

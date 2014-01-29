@@ -9,8 +9,8 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.reflect.TypeToken;
 import com.trolldad.dashclock.redditheadlines.R;
+import com.trolldad.dashclock.redditheadlines.RedditHeadlinesApplication;
 import com.trolldad.dashclock.redditheadlines.RedditHeadlinesExtension;
 import com.trolldad.dashclock.redditheadlines.preferences.MyPrefs_;
 
@@ -23,7 +23,6 @@ import org.joda.time.DateTimeZone;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
-import java.util.Collection;
 
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
@@ -34,7 +33,7 @@ import retrofit.converter.GsonConverter;
  */
 @EBean
 public class RedditClient {
-    @StringRes(R.string.reddit_api_url) String mRedditApiUrl;
+    @StringRes(R.string.reddit_base_url) String mRedditApiUrl;
     @Pref MyPrefs_ mPrefs;
 
     public RedditService getService() {
@@ -63,7 +62,7 @@ public class RedditClient {
                 requestFacade.addHeader("cookie", "reddit_session=" + URLEncoder.encode(mPrefs.cookie().get(), "UTF-8"));
                 requestFacade.addHeader("X-Modhash", URLEncoder.encode(mPrefs.modHash().get(), "UTF-8"));
             } catch (UnsupportedEncodingException e) {
-                Log.e(RedditHeadlinesExtension.TAG, Log.getStackTraceString(e));
+                Log.e(RedditHeadlinesApplication.TAG, Log.getStackTraceString(e));
             }
         }
     }
@@ -74,7 +73,7 @@ public class RedditClient {
             try {
                 return new DateTime(json.getAsLong() * 1000).withZoneRetainFields(DateTimeZone.UTC);
             } catch (IllegalArgumentException e) {
-                Log.e(RedditHeadlinesExtension.TAG, Log.getStackTraceString(e));
+                Log.e(RedditHeadlinesApplication.TAG, Log.getStackTraceString(e));
                 return null;
             }
         }
@@ -82,6 +81,7 @@ public class RedditClient {
 
     public static Gson getGson() {
         Gson gson = new GsonBuilder()
+                .setPrettyPrinting()
                 .disableHtmlEscaping()
                 .registerTypeAdapter(RedditListing.class, new ListingTypeConverter())
                 .registerTypeAdapter(DateTime.class, new DateTimeTypeConverter()).create();

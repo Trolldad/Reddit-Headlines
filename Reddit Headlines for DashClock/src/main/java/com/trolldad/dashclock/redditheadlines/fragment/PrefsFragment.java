@@ -1,6 +1,7 @@
 package com.trolldad.dashclock.redditheadlines.fragment;
 
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -10,10 +11,12 @@ import android.view.View;
 
 import com.squareup.otto.Subscribe;
 import com.trolldad.dashclock.redditheadlines.R;
+import com.trolldad.dashclock.redditheadlines.RedditHeadlinesApplication;
 import com.trolldad.dashclock.redditheadlines.RedditHeadlinesExtension;
 import com.trolldad.dashclock.redditheadlines.activity.AboutActivity_;
 import com.trolldad.dashclock.redditheadlines.otto.LoginService;
 import com.trolldad.dashclock.redditheadlines.otto.MyBus;
+import com.trolldad.dashclock.redditheadlines.otto.UpdateService;
 import com.trolldad.dashclock.redditheadlines.preferences.MyPrefs_;
 import com.trolldad.dashclock.redditheadlines.reddit.RedditClient;
 import com.trolldad.dashclock.redditheadlines.reddit.RedditMe;
@@ -22,6 +25,7 @@ import com.trolldad.dashclock.redditheadlines.reddit.RedditMeResponse;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.res.StringRes;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 import org.androidannotations.api.sharedpreferences.AbstractPrefField;
 
@@ -41,6 +45,12 @@ public class PrefsFragment extends PreferenceFragment implements SharedPreferenc
 
     @Bean
     MyBus mBus;
+
+    @Bean
+    UpdateService mUpdateService;
+
+    @StringRes(R.string.provider_authority)
+    String mProviderAuthority;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -102,7 +112,7 @@ public class PrefsFragment extends PreferenceFragment implements SharedPreferenc
             name = me.name;
         }
         catch (Exception e) {
-            Log.e(RedditHeadlinesExtension.TAG, Log.getStackTraceString(e));
+            Log.e(RedditHeadlinesApplication.TAG, Log.getStackTraceString(e));
         }
         mLoginService.onLoginResult(name != null);
     }
@@ -132,11 +142,7 @@ public class PrefsFragment extends PreferenceFragment implements SharedPreferenc
                         "Full size images will always be loaded first" :
                         "Large thumbnails will be displayed first"
         );
-        setSummary(mPrefs.backToDaydream(),
-                mPrefs.backToDaydream().get() ?
-                        "The back button resumes Daydream" :
-                        "The back button functions normally"
-        );
+        mUpdateService.onUpdateDashClock();
     }
 
     @Subscribe

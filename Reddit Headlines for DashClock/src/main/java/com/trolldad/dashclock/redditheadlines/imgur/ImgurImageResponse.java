@@ -1,7 +1,5 @@
 package com.trolldad.dashclock.redditheadlines.imgur;
 
-import org.joda.time.DateTime;
-
 /**
  * Created by jacob-tabak on 1/18/14.
  */

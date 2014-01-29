@@ -6,11 +6,14 @@
         <item>rising</item>
         <item>controversial</item>
         <item>top</item>
-        <item>gilded</item>
-        <item>random</item>
     </string-array>
     <string-array name="action_entries">
         <item>@string/open_link</item>
         <item>@string/open_comments</item>
+    </string-array>
+    <string-array name="share_methods">
+        <item>@string/share_link</item>
+        <item>@string/share_comments</item>
+        <item>@string/share_app</item>
     </string-array>
 </resources>

@@ -7,16 +7,16 @@ import android.os.Bundle;
 import com.trolldad.dashclock.redditheadlines.activity.PreviewActivity_;
 
 /**
- * Created by jacob-tabak on 1/26/14.
+ * Created by jacob-tabak on 1/28/14.
  */
-public class LaunchAmpersandActivity extends Activity {
+public class LaunchNonImgurActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = PreviewActivity_.intent(this)
-                .mCommentsUrl("/r/pics/comments/1w5wjo/grilled_cheese_mac_cheese_in_shots_of_tomato_soup/")
-                .mLinkName("t3_1w5wjo")
-                .mLinkUrl("http://i.imgur.com/mUyhf6x.jpg")
+                .mCommentsUrl("http://www.reddit.com/r/AdviceAnimals/comments/1wdqd3/after_my_second_paper_jam_in_the_office_today_i/")
+                .mLinkName("t3_1wdqd3")
+                .mLinkUrl("http://www.livememe.com/qk7bcf5.jpg")
                 .get();
         startActivity(intent);
         finish();
