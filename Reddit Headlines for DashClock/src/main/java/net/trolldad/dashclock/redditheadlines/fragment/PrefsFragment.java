@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.squareup.otto.Subscribe;
+
 import net.trolldad.dashclock.redditheadlines.R;
 import net.trolldad.dashclock.redditheadlines.RedditHeadlinesApplication;
 import net.trolldad.dashclock.redditheadlines.activity.AboutActivity_;

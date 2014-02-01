@@ -9,10 +9,14 @@ import com.google.analytics.tracking.android.MapBuilder;
 import com.google.android.apps.dashclock.api.DashClockExtension;
 import com.google.android.apps.dashclock.api.ExtensionData;
 import com.squareup.otto.Subscribe;
+
 import net.trolldad.dashclock.redditheadlines.activity.PreviewActivity_;
 import net.trolldad.dashclock.redditheadlines.analytics.EventAction;
 import net.trolldad.dashclock.redditheadlines.analytics.EventCategory;
+import net.trolldad.dashclock.redditheadlines.cache.ContentCache;
+import net.trolldad.dashclock.redditheadlines.imgur.ImgurAlbumResponse;
 import net.trolldad.dashclock.redditheadlines.imgur.ImgurClient;
+import net.trolldad.dashclock.redditheadlines.imgur.ImgurImageResponse;
 import net.trolldad.dashclock.redditheadlines.otto.MyBus;
 import net.trolldad.dashclock.redditheadlines.otto.UpdateService;
 import net.trolldad.dashclock.redditheadlines.preferences.MyPrefs_;
@@ -26,6 +30,9 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EService;
 import org.androidannotations.annotations.res.StringRes;
 import org.androidannotations.annotations.sharedpreferences.Pref;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by jacob-tabak on 1/2/14.
@@ -63,6 +70,9 @@ public class RedditHeadlinesExtension extends DashClockExtension {
     UpdateService mUpdateService;
 
     @Bean
+    ContentCache mContentCache;
+
+    @Bean
     MyBus mBus;
 
     @Override
@@ -81,8 +91,6 @@ public class RedditHeadlinesExtension extends DashClockExtension {
     protected void onInitialize(boolean isReconnect) {
         super.onInitialize(isReconnect);
         Log.d(RedditHeadlinesApplication.TAG, "onInitialize");
-/*        removeAllWatchContentUris();
-        addWatchContentUris(new String[] { "content://" + mProviderAuthority + mProviderPath});*/
         setUpdateWhenScreenOn(true);
     }
 
@@ -103,7 +111,12 @@ public class RedditHeadlinesExtension extends DashClockExtension {
         RedditListingsResponse response;
         String subreddit = mPrefs.subreddit().get();
         if (subreddit.length() == 0) {
-            response = redditService.frontpage(mPrefs.sortOrder().get(), 1);
+            try {
+                response = redditService.frontpage(mPrefs.sortOrder().get(), 1);
+            } catch (Exception e) {
+                Log.e(RedditHeadlinesApplication.TAG, Log.getStackTraceString(e));
+                return;
+            }
         }
         else {
             // replace /r/ with empty string if user entered it accidentally
@@ -120,7 +133,12 @@ public class RedditHeadlinesExtension extends DashClockExtension {
 
         if (response.getListing() != null) {
             RedditLink link = (RedditLink) response.getListing();
-
+            try {
+                cacheContent(link);
+            } catch (Exception e) {
+                Log.e(RedditHeadlinesApplication.TAG, Log.getStackTraceString(e));
+                return;
+            }
             publishUpdate(new ExtensionData()
                     .visible(true)
                     .icon(R.drawable.ic_reddit_white)
@@ -141,6 +159,35 @@ public class RedditHeadlinesExtension extends DashClockExtension {
         }
         else {
             Log.e(RedditHeadlinesApplication.TAG, "Failed to parse listings.");
+        }
+    }
+
+    private void cacheContent(RedditLink link) throws Exception {
+        Uri uri = Uri.parse(link.url);
+        mContentCache.clearCache();
+        mContentCache.cacheLink(link);
+        if (uri.getHost().contains("imgur.com")) {
+            List<String> pathSegments = uri.getPathSegments();
+            String id = uri.getLastPathSegment();
+            // clean up the id in case it has an extension or anchor
+            if (id.contains(".")) {
+                id = id.substring(0, id.indexOf("."));
+            }
+            if (id.contains("#")) {
+                id = id.substring(0, id.indexOf("#"));
+            }
+            if (pathSegments.size() > 1 && pathSegments.get(0).equalsIgnoreCase(ImgurClient.GALLERY)) {
+                pathSegments = new LinkedList<String>(pathSegments);
+                pathSegments.set(0, ImgurClient.ALBUM);
+            }
+            if (pathSegments.size() > 1 && pathSegments.get(0).equalsIgnoreCase(ImgurClient.ALBUM)) {
+                ImgurAlbumResponse response = mImgurClient.getService().albumInfo(id);
+                mContentCache.cacheAlbumMetadata(response.getAlbum());
+            }
+            else {
+                ImgurImageResponse response = mImgurClient.getService().imageInfo(id);
+                mContentCache.cacheImageMetadata(response.getImage());
+            }
         }
     }
 

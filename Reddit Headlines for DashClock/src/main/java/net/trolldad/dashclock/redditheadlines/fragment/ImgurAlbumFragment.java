@@ -5,20 +5,16 @@ import android.app.FragmentManager;
 import android.os.Bundle;
 import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
-import net.trolldad.dashclock.redditheadlines.R;
-import net.trolldad.dashclock.redditheadlines.RedditHeadlinesApplication;
-import net.trolldad.dashclock.redditheadlines.imgur.ImgurAlbumResponse;
-import net.trolldad.dashclock.redditheadlines.imgur.ImgurClient;
-import net.trolldad.dashclock.redditheadlines.imgur.ImgurImage;
 import com.viewpagerindicator.UnderlinePageIndicator;
 
+import net.trolldad.dashclock.redditheadlines.R;
+import net.trolldad.dashclock.redditheadlines.imgur.ImgurAlbum;
+import net.trolldad.dashclock.redditheadlines.imgur.ImgurImage;
+
 import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Background;
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
@@ -31,10 +27,7 @@ import org.androidannotations.annotations.ViewById;
 @EFragment(R.layout.fragment_album_viewpager)
 public class ImgurAlbumFragment extends Fragment {
     @FragmentArg
-    String mAlbumId;
-
-    @Bean
-    ImgurClient mImgurClient;
+    ImgurAlbum mAlbum;
 
     @ViewById(R.id.album_placeholder)
     ImageView mPlaceholder;
@@ -48,9 +41,6 @@ public class ImgurAlbumFragment extends Fragment {
     @InstanceState
     int mCurrentPage;
 
-    @InstanceState
-    ImgurImage[] mImages;
-
     private AlbumAdapter mAdapter;
 
     @AfterViews
@@ -59,28 +49,11 @@ public class ImgurAlbumFragment extends Fragment {
         mPager.setAdapter(mAdapter);
         mIndicator.setViewPager(mPager, mCurrentPage);
         mIndicator.setFades(false);
-        if (mImages == null) {
-            loadAlbumInfo();
-        }
-        else {
-            updateImages(mImages);
-        }
-    }
-
-    @Background
-    void loadAlbumInfo() {
-        try {
-            ImgurAlbumResponse response = mImgurClient.getService().albumInfo(mAlbumId);
-            updateImages(response.getAlbum().images);
-        } catch (Exception e) {
-            Log.e(RedditHeadlinesApplication.TAG, Log.getStackTraceString(e));
-            RedditHeadlinesApplication.toast("Unable to load album");
-        }
+        updateImages(mAlbum.images);
     }
 
     @UiThread
     void updateImages(ImgurImage[] images) {
-        mImages = images;
         mAdapter.setImages(images);
         mPager.setCurrentItem(mCurrentPage, false);
         mPlaceholder.setVisibility(View.GONE);

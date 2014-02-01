@@ -5,6 +5,7 @@ import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
 
 import com.google.analytics.tracking.android.EasyTracker;
+
 import net.trolldad.dashclock.redditheadlines.R;
 import net.trolldad.dashclock.redditheadlines.view.FontHelper;
 

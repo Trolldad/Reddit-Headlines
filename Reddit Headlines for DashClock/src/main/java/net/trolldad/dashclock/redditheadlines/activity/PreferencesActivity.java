@@ -3,6 +3,7 @@ package net.trolldad.dashclock.redditheadlines.activity;
 import android.app.Activity;
 
 import com.google.analytics.tracking.android.EasyTracker;
+
 import net.trolldad.dashclock.redditheadlines.R;
 
 import org.androidannotations.annotations.EActivity;

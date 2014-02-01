@@ -3,6 +3,7 @@ package net.trolldad.dashclock.redditheadlines.otto;
 import android.util.Log;
 
 import com.squareup.otto.Produce;
+
 import net.trolldad.dashclock.redditheadlines.RedditHeadlinesApplication;
 
 import org.androidannotations.annotations.AfterInject;
@@ -17,6 +18,7 @@ import org.androidannotations.annotations.UiThread;
 public class UpdateService {
     @Bean
     MyBus mBus;
+
 
     @AfterInject
     void init() {

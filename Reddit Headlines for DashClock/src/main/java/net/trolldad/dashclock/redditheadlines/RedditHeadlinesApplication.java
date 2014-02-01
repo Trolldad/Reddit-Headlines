@@ -6,6 +6,7 @@ import android.widget.Toast;
 
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.ExceptionReporter;
+
 import net.trolldad.dashclock.redditheadlines.analytics.AnalyticsExceptionParser;
 
 import org.androidannotations.annotations.EApplication;

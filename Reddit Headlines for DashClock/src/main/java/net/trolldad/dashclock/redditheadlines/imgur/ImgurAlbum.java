@@ -2,10 +2,12 @@ package net.trolldad.dashclock.redditheadlines.imgur;
 
 import org.joda.time.DateTime;
 
+import java.io.Serializable;
+
 /**
  * Created by jacob-tabak on 1/19/14.
  */
-public class ImgurAlbum {
+public class ImgurAlbum implements Serializable {
     public String id;
     public String title;
     public String description;

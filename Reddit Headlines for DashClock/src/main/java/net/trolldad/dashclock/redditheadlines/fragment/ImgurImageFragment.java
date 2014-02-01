@@ -1,7 +1,6 @@
 package net.trolldad.dashclock.redditheadlines.fragment;
 
 import android.app.Fragment;
-import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -9,15 +8,15 @@ import android.widget.Button;
 
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+
 import net.trolldad.dashclock.redditheadlines.R;
 import net.trolldad.dashclock.redditheadlines.RedditHeadlinesApplication;
 import net.trolldad.dashclock.redditheadlines.imgur.ImgurClient;
 import net.trolldad.dashclock.redditheadlines.imgur.ImgurImage;
-import net.trolldad.dashclock.redditheadlines.imgur.ImgurImageResponse;
 import net.trolldad.dashclock.redditheadlines.preferences.MyPrefs_;
+import net.trolldad.dashclock.redditheadlines.reddit.RedditLink;
 
 import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
@@ -38,14 +37,10 @@ import it.sephiroth.android.library.imagezoom.ImageViewTouchBase;
 @EFragment(R.layout.fragment_imgur_image)
 public class ImgurImageFragment extends Fragment {
     @FragmentArg
-    String mImageId;
-
-    @FragmentArg
     ImgurImage mImage;
 
-    // If it's not an imgur image and we need to load it directly
     @FragmentArg
-    String mUrl;
+    RedditLink mLink;
 
     @Bean
     ImgurClient mImgurClient;
@@ -78,27 +73,20 @@ public class ImgurImageFragment extends Fragment {
     void init() {
         mHighQuality = mPrefs.hqImages().get();
         if (mImage == null) {
-            if (!mUrl.contains("imgur.com")) {
-                // This is not an imgur image
-                if (mUrl.endsWith(".gif")) {
-                    RedditHeadlinesApplication.toast("Loading animation, hang tight!");
-                    String html = String.format(mBoundingHtml, mUrl);
-                    mWebView.loadDataWithBaseURL(null, html, "text/html", "utf-8", null);
-                }
-                else {
-                    Picasso.with(mImageView.getContext())
-                            .load(mUrl)
-                            .placeholder(R.drawable.ic_content_picture)
-                            .noFade()
-                            .into(mImageView);
-                }
+            if (mLink.url.endsWith(".gif")) {
+                RedditHeadlinesApplication.toast("Loading animation, hang tight!");
+                String html = String.format(mBoundingHtml, mLink.url);
+                mWebView.loadDataWithBaseURL(null, html, "text/html", "utf-8", null);
             }
             else {
-                loadImageInfo();
+                Picasso.with(mImageView.getContext())
+                        .load(mLink.url)
+                        .placeholder(R.drawable.ic_content_picture)
+                        .noFade()
+                        .into(mImageView);
             }
         }
         else {
-            mImageId = mImage.id;
             displayImgurImage();
         }
         mWebView.setBackgroundColor(0xFF000000);
@@ -114,19 +102,6 @@ public class ImgurImageFragment extends Fragment {
                 }
             }
         });
-    }
-
-    @Background
-    void loadImageInfo() {
-        try {
-            ImgurImageResponse response = mImgurClient.getService().imageInfo(mImageId);
-            mImage = response.getImage();
-            displayImgurImage();
-        }
-        catch (Exception e) {
-            Log.e(RedditHeadlinesApplication.TAG, Log.getStackTraceString(e));
-            RedditHeadlinesApplication.toast("Unable to load image");
-        }
     }
 
     @UiThread

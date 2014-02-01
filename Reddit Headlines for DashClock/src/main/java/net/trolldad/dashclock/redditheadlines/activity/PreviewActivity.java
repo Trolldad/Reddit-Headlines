@@ -18,15 +18,16 @@ import android.widget.Toast;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.MapBuilder;
 import com.squareup.otto.Subscribe;
+
 import net.trolldad.dashclock.redditheadlines.R;
 import net.trolldad.dashclock.redditheadlines.RedditHeadlinesApplication;
 import net.trolldad.dashclock.redditheadlines.analytics.EventAction;
 import net.trolldad.dashclock.redditheadlines.analytics.EventCategory;
+import net.trolldad.dashclock.redditheadlines.cache.ContentCache;
 import net.trolldad.dashclock.redditheadlines.fragment.ImgurAlbumFragment_;
 import net.trolldad.dashclock.redditheadlines.fragment.ImgurImageFragment_;
 import net.trolldad.dashclock.redditheadlines.fragment.LoginDialogFragment_;
 import net.trolldad.dashclock.redditheadlines.fragment.ShareDialogFragment_;
-import net.trolldad.dashclock.redditheadlines.imgur.ImgurClient;
 import net.trolldad.dashclock.redditheadlines.otto.LoginService;
 import net.trolldad.dashclock.redditheadlines.otto.MyBus;
 import net.trolldad.dashclock.redditheadlines.otto.UpdateService;
@@ -50,9 +51,6 @@ import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.StringRes;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 import org.ocpsoft.prettytime.PrettyTime;
-
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Created by jacob-tabak on 1/4/14.
@@ -142,13 +140,25 @@ public class PreviewActivity extends Activity {
     @InstanceState
     RedditLink mLink;
 
+    @InstanceState
+    boolean mLinkLoadedFromCache;
+
+    @Bean
+    ContentCache mContentCache;
+
     @Pref
     MyPrefs_ mPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Action bar overlay required in conjunction with a margin view to smooth the animation of maximizing
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+        if (!mLinkLoadedFromCache) {
+            mLink = mContentCache.link;
+            onLinkReceived();
+            mLinkLoadedFromCache = true;
+        }
     }
 
     @Override
@@ -177,12 +187,7 @@ public class PreviewActivity extends Activity {
 
     @AfterViews
     void afterInject() {
-        if (mLink == null) {
-            getLink();
-        }
-        else {
-            onLinkReceived();
-        }
+        onLinkReceived();
         if (!mFragmentAdded) {
             getFragmentManager().beginTransaction().add(R.id.preview_fragment_container, getFragment(), "main").commit();
             mFragmentAdded = true;
@@ -270,30 +275,16 @@ public class PreviewActivity extends Activity {
     }
 
     private Fragment getFragment() {
-        Uri uri = Uri.parse(mLinkUrl);
-        List<String> pathSegments = uri.getPathSegments();
-        String id = uri.getLastPathSegment();
-        // clean up the id in case it has an extension or anchor
-        if (id.contains(".")) {
-            id = id.substring(0, id.indexOf("."));
-        }
-        if (id.contains("#")) {
-            id = id.substring(0, id.indexOf("#"));
-        }
-
-        if (uri.getHost().contains("imgur.com") && pathSegments.size() > 1 && pathSegments.get(0).equalsIgnoreCase(ImgurClient.GALLERY)) {
-            pathSegments = new LinkedList<String>(pathSegments);
-            pathSegments.set(0, ImgurClient.ALBUM);
-        }
-        Fragment fragment;
         String action;
-        if (pathSegments.size() > 1 && pathSegments.get(0).equalsIgnoreCase(ImgurClient.ALBUM)) {
-            fragment = ImgurAlbumFragment_.builder().mAlbumId(id).build();
+        Fragment fragment;
+        if (mContentCache.album != null) {
+            fragment = ImgurAlbumFragment_.builder().mAlbum(mContentCache.album).build();
             action = EventAction.VIEW_ALBUM;
         }
         else {
-            fragment = ImgurImageFragment_.builder().mImageId(id).mUrl(mLinkUrl).build();
+            fragment = ImgurImageFragment_.builder().mImage(mContentCache.image).mLink(mLink).build();
             action = EventAction.VIEW_IMAGE;
+
         }
         EasyTracker.getInstance(this).send(
                 MapBuilder.createEvent(

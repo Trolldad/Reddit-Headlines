@@ -9,6 +9,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+
 import net.trolldad.dashclock.redditheadlines.R;
 import net.trolldad.dashclock.redditheadlines.RedditHeadlinesApplication;
 import net.trolldad.dashclock.redditheadlines.preferences.MyPrefs_;
